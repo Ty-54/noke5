@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roanoke Five | Scoring</title>
+<style>
+:root{--maroon:#6b1734;--gold:#d5a64a;--ink:#20202a;--muted:#666;--line:#ddd;--bg:#f6f5f7}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--maroon);color:white;padding:28px 18px;border-bottom:5px solid var(--gold)}
+header .wrap,main{max-width:1200px;margin:auto}h1{margin:0 0 6px;font-size:clamp(1.8rem,4vw,2.7rem)}header p{margin:0;color:#f3e8ec}
+main{padding:20px 14px 48px}.notice{background:#fff7e4;border:1px solid #e4c77c;padding:12px 14px;border-radius:8px;margin-bottom:16px;line-height:1.45}
+.panel{background:white;border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0;box-shadow:0 2px 6px #00000008}
+h2{font-size:1.25rem;margin:0 0 12px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+button,.button{border:0;border-radius:7px;padding:10px 14px;font-weight:700;cursor:pointer;background:var(--maroon);color:white}
+button.secondary{background:#ece9ed;color:var(--ink)}button.danger{background:#9b2929}.tabs button[aria-selected="true"]{outline:3px solid var(--gold);outline-offset:1px}
+form .grid{display:grid;grid-template-columns:repeat(5,minmax(130px,1fr));gap:12px}
+label{display:block;font-size:.88rem;font-weight:700;margin-bottom:5px}input,select{width:100%;padding:9px;border:1px solid #bbb;border-radius:6px;font:inherit;background:white}
+.hint{font-size:.78rem;color:var(--muted);font-weight:400;display:block;margin-top:4px}
+.name-row{max-width:360px;margin-bottom:12px}.checkline{display:flex;align-items:center;gap:8px;margin:14px 0;font-size:.9rem}.checkline input{width:auto}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;background:white;font-size:.9rem}th,td{padding:10px 9px;border-bottom:1px solid #e6e3e7;text-align:right;white-space:nowrap}th{background:#f0edf1;font-size:.8rem}th:first-child,td:first-child{text-align:left}td.total{font-weight:800;color:var(--maroon)}.sub{display:block;font-size:.76rem;color:var(--muted);font-weight:400;margin-top:3px}
+.small{font-size:.86rem;color:var(--muted);line-height:1.5}.empty{padding:20px;text-align:center;color:var(--muted)}
+footer{font-size:.8rem;color:var(--muted);margin-top:18px;line-height:1.5}
+@media(max-width:800px){form .grid{grid-template-columns:repeat(2,minmax(120px,1fr))}}
+@media(max-width:460px){form .grid{grid-template-columns:1fr 1fr}.panel{padding:12px}th,td{padding:8px 7px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>Roanoke Five</h1><p>Combined-event scoring and leaderboard</p></div></header>
+<main>
+<div class="notice"><strong>Scoring setup:</strong> This is a custom five-event format, not an officially recognized combined event. The formulas below use published event coefficients, but validate the chosen coefficients and timing rules with your club/adviser before using these results as official competition results.</div>
+
+<section class="panel">
+<h2>Add an athlete</h2>
+<div class="tabs" role="tablist" aria-label="Scoring division">
+<button type="button" id="menTab" aria-selected="true" onclick="setDivision('men')">Men's division</button>
+<button type="button" id="womenTab" aria-selected="false" onclick="setDivision('women')">Women's division</button>
+</div>
+<form id="athleteForm">
+<div class="name-row"><label for="athleteName">Athlete name</label><input id="athleteName" required maxlength="80" placeholder="Enter name"></div>
+<div class="grid">
+<div><label for="ljFt">Long jump</label><div style="display:flex;gap:5px"><input id="ljFt" type="number" min="0" step="1" placeholder="Feet" aria-label="Long jump feet"><input id="ljIn" type="number" min="0" max="11.99" step=".01" placeholder="Inches" aria-label="Long jump inches"></div><span class="hint">Feet + inches</span></div>
+<div><label for="javFt">Javelin</label><div style="display:flex;gap:5px"><input id="javFt" type="number" min="0" step="1" placeholder="Feet" aria-label="Javelin feet"><input id="javIn" type="number" min="0" max="11.99" step=".01" placeholder="Inches" aria-label="Javelin inches"></div><span class="hint">Feet + inches</span></div>
+<div><label for="time200">200 meters</label><input id="time200" type="number" min="0" step=".01" placeholder="e.g. 25.42"><span class="hint">Seconds</span></div>
+<div><label for="disFt">Discus</label><div style="display:flex;gap:5px"><input id="disFt" type="number" min="0" step="1" placeholder="Feet" aria-label="Discus feet"><input id="disIn" type="number" min="0" max="11.99" step=".01" placeholder="Inches" aria-label="Discus inches"></div><span class="hint">Feet + inches</span></div>
+<div><label for="time1500">1500 meters</label><input id="time1500" placeholder="e.g. 5:30.00"><span class="hint">Minutes:seconds</span></div>
+</div>
+<label class="checkline"><input id="hand200" type="checkbox" checked> 200 m was hand-timed (add 0.24 seconds for scoring)</label>
+<div class="actions"><button type="submit">Add athlete</button><button type="button" class="secondary" onclick="document.getElementById('athleteForm').reset()">Clear form</button></div>
+</form>
+</section>
+
+<section class="panel">
+<h2 id="leaderboardTitle">Men's division leaderboard</h2>
+<p class="small">The table shows each event's points and the combined total. Athletes appear in the division selected above. Scores update when you add or edit an athlete.</p>
+<div class="table-wrap" id="leaderboard"></div>
+<div class="actions">
+<button type="button" onclick="exportData()">Export backup (JSON)</button>
+<button type="button" class="secondary" onclick="document.getElementById('importFile').click()">Import backup</button>
+<button type="button" class="danger" onclick="clearDivision()">Clear this division</button>
+<input id="importFile" type="file" accept=".json,application/json" style="display:none">
+</div>
+</section>
+
+<section class="panel">
+<h2>Scoring rules and units</h2>
+<ul class="small">
+<li>Long jump: enter feet and inches; converted to centimeters for scoring.</li>
+<li>Javelin and discus: enter feet and inches; converted to meters for scoring.</li>
+<li>200 m: enter seconds. The checkbox applies a +0.24-second adjustment for hand timing, a commonly used conversion for track events up to 400 m. Confirm this rule before competition.</li>
+<li>1500 m: enter minutes:seconds, such as <code>5:30.00</code>. No hand-time adjustment is applied here.</li>
+<li>Points are rounded down to whole numbers. The five event scores are added for the total.</li>
+<li>Data is stored in this browser on this device. It is not automatically shared with other devices. Export a backup regularly.</li>
+</ul>
+</section>
+<footer>
+Formula coefficients currently loaded (must be verified before official use): men's event coefficients for long jump, javelin, 200 m, discus, and 1500 m; women's long jump, javelin, and 200 m coefficients from women's heptathlon tables, and women's discus/1500 m coefficients from the selected women's combined-event table. This combination is a custom Roanoke Five scoring format. GitHub Pages serves the website publicly; do not store sensitive personal information here.
+</footer>
+</main>
+<script>
+const STORAGE_KEY = "roanokeFiveAthletesV1";
+let division = "men";
+let athletes = loadAthletes();
+
+const FORMULAS = {
+  men: {
+    lj: {a:0.14354,b:220,c:1.40,unit:"cm",type:"field"},
+    jav:{a:10.14,b:7,c:1.08,unit:"m",type:"field"},
+    t200:{a:5.8425,b:38,c:1.81,type:"track"},
+    dis:{a:12.91,b:4,c:1.10,unit:"m",type:"field"},
+    t1500:{a:0.03768,b:480,c:1.85,type:"track"}
+  },
+  women: {
+    lj: {a:0.188807,b:210,c:1.41,unit:"cm",type:"field"},
+    jav:{a:15.9803,b:3.8,c:1.04,unit:"m",type:"field"},
+    t200:{a:4.99087,b:42.5,c:1.81,type:"track"},
+    dis:{a:12.3311,b:3,c:1.10,unit:"m",type:"field"},
+    t1500:{a:0.02883,b:535,c:1.88,type:"track"}
+  }
+};
+
+function loadAthletes(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
+  catch(e){ return []; }
+}
+function saveAthletes(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(athletes)); }
+function setDivision(value){
+  division=value;
+  document.getElementById("menTab").setAttribute("aria-selected", value==="men");
+  document.getElementById("womenTab").setAttribute("aria-selected", value==="women");
+  document.getElementById("leaderboardTitle").textContent=(value==="men"?"Men's":"Women's")+" division leaderboard";
+  render();
+}
+function getNumber(id){
+  const v=document.getElementById(id).value.trim();
+  return v==="" ? null : Number(v);
+}
+function getDistance(ftId,inId){
+  const ft=getNumber(ftId), inch=getNumber(inId);
+  if(ft===null && inch===null) return null;
+  if((ft!==null && ft<0)||(inch!==null && (inch<0 || inch>=12))) throw new Error("Use nonnegative feet and inches from 0 up to (but not including) 12.");
+  return ((ft||0)*12+(inch||0))*0.0254; // meters
+}
+function parse1500(value){
+  const s=value.trim();
+  if(!s) return null;
+  if(!/^\d+:\d{1,2}(\.\d+)?$/.test(s)) throw new Error("Enter the 1500 m as minutes:seconds, for example 5:30.00.");
+  const parts=s.split(":");
+  const sec=Number(parts[1]);
+  if(sec>=60) throw new Error("Seconds in the 1500 m time must be less than 60.");
+  return Number(parts[0])*60+sec;
+}
+function points(formula, value){
+  if(value===null || !Number.isFinite(value)) return null;
+  const base = formula.type==="track" ? formula.b-value : value-formula.b;
+  if(base<=0) return 0;
+  const result=formula.a*Math.pow(base,formula.c);
+  return Number.isFinite(result) ? Math.max(0,Math.floor(result)) : 0;
+}
+function scoresFor(a){
+  const f=FORMULAS[a.division];
+  const marks={
+    lj:a.ljMeters===null?null:a.ljMeters*100,
+    jav:a.javMeters,
+    t200:a.t200Seconds===null?null:a.t200Seconds+(a.hand200?0.24:0),
+    dis:a.disMeters,
+    t1500:a.t1500Seconds
+  };
+  const scores={};
+  for(const key of Object.keys(f)) scores[key]=points(f[key],marks[key]);
+  const complete=Object.values(scores).every(v=>v!==null);
+  return {scores,total:complete?Object.values(scores).reduce((sum,v)=>sum+v,0):null};
+}
+function formatPoints(n){return n===null?"—":n.toLocaleString("en-US");}
+function formatFeet(meters){
+  if(meters===null || meters===undefined) return "—";
+  const totalInches=meters/0.0254;
+  const feet=Math.floor(totalInches/12);
+  const inches=totalInches-feet*12;
+  return `${feet}' ${inches.toFixed(2)}"`;
+}
+function formatTime(seconds){
+  if(seconds===null || seconds===undefined) return "—";
+  const mins=Math.floor(seconds/60), sec=seconds-mins*60;
+  return `${mins}:${sec.toFixed(2).padStart(5,"0")}`;
+}
+document.getElementById("athleteForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  try{
+    const name=document.getElementById("athleteName").value.trim();
+    if(!name) throw new Error("Enter an athlete name.");
+    const t200=getNumber("time200");
+    if(t200!==null && t200<=0) throw new Error("200 m time must be greater than zero.");
+    const t1500=parse1500(document.getElementById("time1500").value);
+    if(t1500!==null && t1500<=0) throw new Error("1500 m time must be greater than zero.");
+    const athlete={
+      id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),
+      name,division,
+      ljMeters:getDistance("ljFt","ljIn"),
+      javMeters:getDistance("javFt","javIn"),
+      t200Seconds:t200,
+      disMeters:getDistance("disFt","disIn"),
+      t1500Seconds:t1500,
+      hand200:document.getElementById("hand200").checked
+    };
+    if([athlete.ljMeters,athlete.javMeters,athlete.t200Seconds,athlete.disMeters,athlete.t1500Seconds].some(v=>v!==null && (!Number.isFinite(v)||v<0))) throw new Error("Please check the entered marks and times.");
+    athletes.push(athlete);
+    saveAthletes(); this.reset(); document.getElementById("hand200").checked=true; render();
+  }catch(err){alert(err.message);}
+});
+function render(){
+  const list=athletes.filter(a=>a.division===division).map(a=>({...a,...scoresFor(a)}));
+  list.sort((a,b)=>{
+    if(a.total===null && b.total===null) return a.name.localeCompare(b.name);
+    if(a.total===null) return 1;if(b.total===null)return -1;
+    return b.total-a.total;
+  });
+  const container=document.getElementById("leaderboard");
+  if(!list.length){container.innerHTML='<div class="empty">No athletes added to this division yet.</div>';return;}
+  let html='<table><thead><tr><th>Athlete</th><th>Long jump<span class="sub">points</span></th><th>Javelin<span class="sub">points</span></th><th>200 m<span class="sub">points</span></th><th>Discus<span class="sub">points</span></th><th>1500 m<span class="sub">points</span></th><th>Total</th><th>Actions</th></tr></thead><tbody>';
+  for(const a of list){
+    html+=`<tr><td>${escapeHtml(a.name)}<span class="sub">LJ ${formatFeet(a.ljMeters)} · Jav ${formatFeet(a.javMeters)} · 200 ${a.t200Seconds===null?"—":a.t200Seconds.toFixed(2)+" s"} · Disc ${formatFeet(a.disMeters)} · 1500 ${formatTime(a.t1500Seconds)}</span></td>
+    <td>${formatPoints(a.scores.lj)}</td><td>${formatPoints(a.scores.jav)}</td><td>${formatPoints(a.scores.t200)}</td><td>${formatPoints(a.scores.dis)}</td><td>${formatPoints(a.scores.t1500)}</td><td class="total">${formatPoints(a.total)}</td>
+    <td><button type="button" class="secondary" onclick="editAthlete('${a.id}')">Edit</button> <button type="button" class="danger" onclick="deleteAthlete('${a.id}')">Delete</button></td></tr>`;
+  }
+  html+='</tbody></table>';
+  container.innerHTML=html;
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function editAthlete(id){
+  const a=athletes.find(x=>x.id===id);if(!a)return;
+  const name=prompt("Edit athlete name:",a.name);if(name===null)return;
+  const lj=prompt("Long jump in feet and inches, e.g. 18 4.5",a.ljMeters===null?"":metersToFtIn(a.ljMeters));
+  if(lj===null)return;
+  const jav=prompt("Javelin in feet and inches, e.g. 100 6",a.javMeters===null?"":metersToFtIn(a.javMeters));
+  if(jav===null)return;
+  const t200=prompt("200 m time in seconds",a.t200Seconds===null?"":a.t200Seconds);
+  if(t200===null)return;
+  const dis=prompt("Discus in feet and inches, e.g. 100 6",a.disMeters===null?"":metersToFtIn(a.disMeters));
+  if(dis===null)return;
+  const t1500=prompt("1500 m time as minutes:seconds, e.g. 5:30.00",a.t1500Seconds===null?"":formatTime(a.t1500Seconds));
+  if(t1500===null)return;
+  try{
+    a.name=name.trim()||a.name;
+    a.ljMeters=parseFtInPrompt(lj);a.javMeters=parseFtInPrompt(jav);a.disMeters=parseFtInPrompt(dis);
+    a.t200Seconds=t200.trim()===""?null:Number(t200);
+    a.t1500Seconds=parse1500(t1500);
+    if((a.t200Seconds!==null&&(!Number.isFinite(a.t200Seconds)||a.t200Seconds<=0))||(a.t1500Seconds!==null&&a.t1500Seconds<=0))throw new Error("Invalid time entered.");
+    saveAthletes();render();
+  }catch(err){alert(err.message);}
+}
+function metersToFtIn(m){const inches=m/0.0254;return `${Math.floor(inches/12)} ${Number((inches%12).toFixed(2))}`;}
+function parseFtInPrompt(s){
+  if(!s.trim())return null;
+  const parts=s.trim().split(/[ ,]+/);if(parts.length!==2)throw new Error("Enter feet and inches separated by a space, or leave blank.");
+  const ft=Number(parts[0]),inch=Number(parts[1]);
+  if(!Number.isFinite(ft)||!Number.isFinite(inch)||ft<0||inch<0||inch>=12)throw new Error("Invalid feet/inches value.");
+  return (ft*12+inch)*0.0254;
+}
+function deleteAthlete(id){
+  const a=athletes.find(x=>x.id===id);if(!a)return;
+  if(confirm(`Delete ${a.name} from the roster?`)){athletes=athletes.filter(x=>x.id!==id);saveAthletes();render();}
+}
+function clearDivision(){
+  if(!confirm(`Delete all athletes in the ${division} division from this browser? Export a backup first if needed.`))return;
+  athletes=athletes.filter(a=>a.division!==division);saveAthletes();render();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(athletes,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob),link=document.createElement("a");
+  link.href=url;link.download="roanoke-five-backup.json";link.click();URL.revokeObjectURL(url);
+}
+document.getElementById("importFile").addEventListener("change",async function(){
+  const file=this.files[0];if(!file)return;
+  try{
+    const incoming=JSON.parse(await file.text());
+    if(!Array.isArray(incoming)||!incoming.every(a=>a&&typeof a.name==="string"&&["men","women"].includes(a.division)))throw new Error("This doesn't look like a Roanoke Five backup file.");
+    if(confirm("Import this backup and replace the athletes currently stored in this browser?")){athletes=incoming;saveAthletes();render();}
+  }catch(err){alert(err.message||"Could not read that file.");}
+  this.value="";
+});
+render();
+</script>
+</body>
+</html>
